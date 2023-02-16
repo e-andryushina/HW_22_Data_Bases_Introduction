@@ -5,6 +5,8 @@ import ru.hogwarts.school.exception.FacultyNotFoundException;
 import ru.hogwarts.school.exception.StudentNotFoundException;
 import ru.hogwarts.school.model.Faculty;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.repository.FacultyRepository;
+import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,55 +15,42 @@ import java.util.stream.Collectors;
 
 @Service
 public class FacultyService {
+    private FacultyRepository facultyRepository;
 
-    private final Map<Long, Faculty> faculties = new HashMap<>();
-    private long counter = 0L;
+    public FacultyService(FacultyRepository facultyRepository) {
+        this.facultyRepository = facultyRepository;
+    }
 
     public Collection<Faculty> getAll() {
-        return this.faculties.values();
+
+        return this.facultyRepository.findAll();
     }
 
     public Faculty addFaculty(Faculty faculty) {
-        long newId = this.counter++;
-        faculty.setId(counter);
-        faculties.put(newId, faculty);
-        return faculty;
+        return this.facultyRepository.save(faculty);
     }
 
-    public Faculty updateFaculty(Long id, Faculty newStudent) {
-        if (this.faculties.containsKey(id)) {
-            Faculty oldStudent = this.faculties.get(id);
-            oldStudent.setColor(newStudent.getColor());
-            oldStudent.setName(newStudent.getName());
-            return oldStudent;
-        }
-        else {
-            throw new FacultyNotFoundException();
-        }
+    public Faculty updateFaculty(Long id, Faculty newFaculty) {
+        Faculty faculty =
+                this.facultyRepository.findById(id).orElseThrow(FacultyNotFoundException::new);
+        faculty.setName(newFaculty.getName());
+        faculty.setName(newFaculty.getColor());
+        return this.facultyRepository.save(faculty);
     }
 
     public Faculty getFaculty(Long id) {
-        if(this.faculties.containsValue(id)) {
-            return this.faculties.get(id);
-        }
-        else {
-            throw new FacultyNotFoundException();
-        }
+        return this.facultyRepository.findById(id)
+                .orElseThrow(FacultyNotFoundException::new);
     }
 
-    public Collection<Faculty> getStudentByColor(String color) {
-        return faculties.values()
-                .stream()
-                .filter(s -> s.getColor().equals(color))
-                .collect(Collectors.toList());
+    public Collection<Faculty> getFacultyByColor(String color) {
+        return this.facultyRepository.findByColor(color);
     }
 
     public void removeFaculty(Long id) {
-        if (this.faculties.containsValue(id)) {
-            faculties.remove(id);
-        }
-        else {
-            throw new FacultyNotFoundException();
-        }
+        Faculty faculty =
+                this.facultyRepository.findById(id).orElseThrow(StudentNotFoundException::new);
+        this.facultyRepository.delete(faculty);
     }
+
 }

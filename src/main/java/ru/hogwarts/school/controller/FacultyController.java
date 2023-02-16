@@ -31,8 +31,8 @@ public class FacultyController {
     }
 
     @GetMapping("/color/{color}")
-    public Collection<Faculty> getStudentsByAge(@PathVariable("color") String color) {
-        return facultyService.getStudentByColor(color);
+    public Collection<Faculty> getFacultyByColor(@PathVariable("color") String color) {
+        return facultyService.getFacultyByColor(color);
     }
 
     @PostMapping
