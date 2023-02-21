@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.hogwarts.school.dto.StudentDTO;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.StudentService;
 
@@ -24,7 +25,7 @@ public class StudentController {
 
     @GetMapping
     @Operation(summary = "Returns list of all students", tags = "student")
-    public Collection<Student> getAll() {
+    public Collection<StudentDTO> getAll() {
         return this.studentService.getAll();
     }
 
@@ -34,22 +35,28 @@ public class StudentController {
             @ApiResponse(responseCode = "200", description = "Student model", content = @Content(schema = @Schema(implementation = Student.class))),
             @ApiResponse(responseCode = "404", description = "Student not found", content = @Content)
     })
-    public Student getStudentById(@PathVariable("id") long id) {
+    public StudentDTO getStudentById(@PathVariable("id") long id) {
         return studentService.getStudent(id);
     }
 
     @GetMapping("/age/{age}")
-    public Collection<Student> getStudentsByAge(@PathVariable("age") int age) {
+    public Collection<StudentDTO> getStudentsByAge(@PathVariable("age") int age) {
         return studentService.getStudentByAge(age);
     }
 
+    @GetMapping("/age/between")
+    public Collection<StudentDTO> getStudentByAgeBetween(@RequestParam ("minAge") int minAge, @RequestParam ("maxAge") int maxAge){
+        return studentService.getStudentsByAgeBetween(minAge, maxAge);
+    }
+
+
     @PostMapping
-    public Student createStudent(@RequestBody Student student) {
+    public StudentDTO createStudent(@RequestBody Student student) {
         return studentService.addStudent(student);
     }
 
     @PutMapping("/{id}")
-    public Student changeStudent(@PathVariable("id") long id, @RequestBody Student student){
+    public StudentDTO changeStudent(@PathVariable("id") long id, @RequestBody Student student){
         return studentService.updateStudent(id, student);
     }
 
