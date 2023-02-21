@@ -1,7 +1,9 @@
 package ru.hogwarts.school.service;
 
 import org.springframework.stereotype.Service;
+import ru.hogwarts.school.dto.StudentDTO;
 import ru.hogwarts.school.exception.StudentNotFoundException;
+import ru.hogwarts.school.mapper.StudentMapper;
 import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.repository.StudentRepository;
 
@@ -19,36 +21,47 @@ public class StudentService {
         this.studentRepository = studentRepository;
     }
 
-    public Student addStudent (Student student) {
-        return this.studentRepository.save(student);
+    public StudentDTO addStudent (Student student) {
+        return StudentMapper.toDto(this.studentRepository.save(student));
     }
 
-    public Student updateStudent(Long id, Student newStudent) {
+    public StudentDTO updateStudent(Long id, Student newStudent) {
         Student student =
                 this.studentRepository.findById(id).orElseThrow(StudentNotFoundException::new);
         student.setName(newStudent.getName());
         student.setAge((newStudent.getAge()));
-        return this.studentRepository.save(student);
-
+        return StudentMapper.toDto(this.studentRepository.save(student));
     }
 
-    public Student getStudent(Long id) {
-        return this.studentRepository.findById(id).orElseThrow(StudentNotFoundException::new);
-
+    public StudentDTO getStudent(Long id) {
+        return this.studentRepository.findById(id).
+                map(StudentMapper::toDto)
+                .orElseThrow(StudentNotFoundException::new);
     }
 
-    public Collection<Student> getStudentByAge(int age) {
-        return this.studentRepository.getStudentByAge(age);
+    public Collection<StudentDTO> getStudentByAge(int age) {
+        return this.studentRepository.getStudentByAge(age).stream()
+                .map(StudentMapper::toDto)
+                .collect(Collectors.toList());
     }
 
-    public Collection<Student> getAll() {
-        return this.studentRepository.findAll();
+    public Collection<StudentDTO> getStudentsByAgeBetween(int minAge, int maxAge) {
+        return this.studentRepository.getStudentsByAgeBetween(minAge, maxAge).stream()
+                .map(StudentMapper::toDto)
+                .collect(Collectors.toList());
     }
 
-    public void removeStudent(Long id) {
+    public Collection<StudentDTO> getAll() {
+        return this.studentRepository.findAll().stream()
+                .map(StudentMapper::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public StudentDTO removeStudent(Long id) {
         Student student =
                 this.studentRepository.findById(id).orElseThrow(StudentNotFoundException::new);
         this.studentRepository.delete(student);
+        return StudentMapper.toDto(student);
     }
 
 }
